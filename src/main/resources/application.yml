@@ -1,0 +1,16 @@
+spring:
+  profiles.active:  dev
+---
+spring:
+  profiles: dev
+---
+spring:
+  profiles: custom
+redis:
+  host: localhost
+  port: 1337
+  password: 
+  pool:
+    use: true
+    max-active: 128
+    max-idle: 20
