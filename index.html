@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>NingZeta-Sample-Redis by ningthoujam-lokhendro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">NingZeta-Sample-Redis</h1>
+      <h2 class="project-tagline">Spring Redis Sample Usage</h2>
+      <a href="https://github.com/ningthoujam-lokhendro/ningzeta-sample-redis" class="btn">View on GitHub</a>
+      <a href="https://github.com/ningthoujam-lokhendro/ningzeta-sample-redis/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/ningthoujam-lokhendro/ningzeta-sample-redis/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="ningzeta-sample-redis" class="anchor" href="#ningzeta-sample-redis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>NingZeta-Sample-redis</h1>
+
+<p>General usage example of Redis with Spring.</p>
+
+<ul>
+<li>Use of Spring-boot auto-configuration for Redis properties</li>
+<li>Use of customize configuration of Redis.</li>
+<li>Generic RedisTemplate usage.</li>
+</ul>
+
+<h2>
+<a id="technology-use" class="anchor" href="#technology-use" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Technology use</h2>
+
+<ul>
+<li>Spring-Boot</li>
+<li>Spring Redis - Jedis</li>
+</ul>
+
+<p>Refer to <code>pom.xml</code> for details.</p>
+
+<h2>
+<a id="requirement" class="anchor" href="#requirement" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirement</h2>
+
+<ul>
+<li>Maven 3.x</li>
+<li>Java 1.7+</li>
+</ul>
+
+<h2>
+<a id="use-of-spring-boot-auto-configuration-for-redis-properties" class="anchor" href="#use-of-spring-boot-auto-configuration-for-redis-properties" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Use of Spring-boot auto-configuration for Redis properties</h2>
+
+<p>Inject RedisConnectionFactory</p>
+
+<div class="highlight highlight-source-java"><pre>@<span class="pl-smi">Autowired</span>
+<span class="pl-k">private</span> <span class="pl-smi">RedisConnectionFactory</span> redisConnectionFactory;</pre></div>
+
+<h2>
+<a id="use-of-customize-configuration-of-redis" class="anchor" href="#use-of-customize-configuration-of-redis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Use of Customize configuration of Redis.</h2>
+
+<p>Create a bean for the JedisConnectionFactory</p>
+
+<div class="highlight highlight-source-java"><pre>@<span class="pl-smi">Bean</span>
+<span class="pl-smi">RedisConnectionFactory</span> jedisConnectionFactory() {
+    <span class="pl-smi">JedisConnectionFactory</span> jedisConnectionFactory <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">JedisConnectionFactory</span>();
+    <span class="pl-smi">JedisPoolConfig</span> jedisPoolConfig <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">JedisPoolConfig</span>();
+
+    jedisConnectionFactory<span class="pl-k">.</span>setHostName(environment<span class="pl-k">.</span>getRequiredProperty(<span class="pl-s"><span class="pl-pds">"</span>redis.host<span class="pl-pds">"</span></span>));
+    jedisConnectionFactory<span class="pl-k">.</span>setPassword(environment<span class="pl-k">.</span>getProperty(<span class="pl-s"><span class="pl-pds">"</span>redis.password<span class="pl-pds">"</span></span>));
+    jedisConnectionFactory<span class="pl-k">.</span>setPort(environment<span class="pl-k">.</span>getRequiredProperty(<span class="pl-s"><span class="pl-pds">"</span>redis.port<span class="pl-pds">"</span></span>, <span class="pl-smi">Integer</span><span class="pl-k">.</span>class));
+    <span class="pl-smi">Boolean</span> usePool <span class="pl-k">=</span> environment<span class="pl-k">.</span>getRequiredProperty(<span class="pl-s"><span class="pl-pds">"</span>redis.pool.use<span class="pl-pds">"</span></span>, <span class="pl-smi">Boolean</span><span class="pl-k">.</span>class)
+            .toString()<span class="pl-k">.</span>equalsIgnoreCase(<span class="pl-s"><span class="pl-pds">"</span>true<span class="pl-pds">"</span></span>);
+    jedisConnectionFactory<span class="pl-k">.</span>setUsePool(usePool);
+
+    <span class="pl-k">if</span> (usePool) {
+        jedisPoolConfig<span class="pl-k">.</span>setMaxTotal(environment<span class="pl-k">.</span>getProperty(<span class="pl-s"><span class="pl-pds">"</span>redis.pool.max-active<span class="pl-pds">"</span></span>, <span class="pl-smi">Integer</span><span class="pl-k">.</span>class));
+        jedisPoolConfig<span class="pl-k">.</span>setMaxIdle(environment<span class="pl-k">.</span>getProperty(<span class="pl-s"><span class="pl-pds">"</span>redis.pool.max-idle<span class="pl-pds">"</span></span>, <span class="pl-smi">Integer</span><span class="pl-k">.</span>class));
+    }
+
+    <span class="pl-k">return</span> jedisConnectionFactory;
+}</pre></div>
+
+<h2>
+<a id="generic-redistemplate-serializer-deserializer-usage" class="anchor" href="#generic-redistemplate-serializer-deserializer-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Generic RedisTemplate Serializer-DeSerializer usage.</h2>
+
+<p>Create a bean for the RedisTemplate that accepts Jackson2JsonRedisSerializer and/or StringRedisSerializer
+according to the data-store format.</p>
+
+<div class="highlight highlight-source-java"><pre>@<span class="pl-smi">Bean</span>
+<span class="pl-k">public</span> <span class="pl-k">RedisTemplate&lt;?, ?&gt;</span> redisTemplate() {
+    <span class="pl-k">RedisTemplate&lt;?, ?&gt;</span> redisTemplate <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-k">RedisTemplate&lt;&gt;</span>();
+    <span class="pl-c">// Use this when refine Connection Pool</span>
+    redisTemplate<span class="pl-k">.</span>setConnectionFactory(jedisConnectionFactory());
+    redisTemplate<span class="pl-k">.</span>setDefaultSerializer(stringRedisSerializer());
+    redisTemplate<span class="pl-k">.</span>setHashValueSerializer(jackson2JsonRedisSerializer());
+    <span class="pl-k">return</span> redisTemplate;
+}</pre></div>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>There are two profiles : dev || custom
+Activate the profile in the application.yml</p>
+
+<h2>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
+
+<ol>
+<li>Fork it!</li>
+<li>Create your feature branch: <code>git checkout -b my-new-feature</code>
+</li>
+<li>Commit your changes: <code>git commit -am 'Add some feature'</code>
+</li>
+<li>Push to the branch: <code>git push origin my-new-feature</code>
+</li>
+<li>Submit a pull request :D</li>
+</ol>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/ningthoujam-lokhendro/ningzeta-sample-redis">NingZeta-Sample-Redis</a> is maintained by <a href="https://github.com/ningthoujam-lokhendro">ningthoujam-lokhendro</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
